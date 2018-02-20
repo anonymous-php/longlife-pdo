@@ -60,35 +60,6 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
     }
 
     /**
-     * @inheritdoc
-     */
-    public function prepareWithValues($statement, array $values = [])
-    {
-        // if there are no values to bind ...
-        if (empty($values)) {
-            // ... use the normal preparation
-            return $this->prepare($statement);
-        }
-
-        $this->connect();
-
-        // rebuild the statement and values
-        $parser = clone $this->parser;
-        list ($statement, $values) = $parser->rebuild($statement, $values);
-
-        // prepare the statement
-        $sth = $this->getPreparedStatement($statement);
-
-        // for the placeholders we found, bind the corresponding data values
-        foreach ($values as $key => $val) {
-            $this->bindValue($sth, $key, $val);
-        }
-
-        // done
-        return $sth;
-    }
-
-    /**
      * Sets check connection timeout. No checks by default
      *
      * @param integer $timeout Seconds
