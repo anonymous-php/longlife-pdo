@@ -1,0 +1,20 @@
+<phpunit bootstrap="vendor/autoload.php">
+    <testsuites>
+        <testsuite name="longlife">
+            <file>tests/LonglifePdoTest.php</file>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+    <php>
+        <env name="host" value="127.0.0.1" />
+        <env name="port" value="3306" />
+        <env name="dbname" value="test" />
+        <env name="username" value="travis" />
+        <env name="password" value="" />
+        <env name="socket" value="" />
+    </php>
+</phpunit>
