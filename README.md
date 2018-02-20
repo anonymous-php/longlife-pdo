@@ -27,6 +27,9 @@ $pdo->setCheckConnectionTimeout(60);
 $pdo->setStatementsCacheLimit(100);
 ```
 
-### Issues
+### Dependencies
 
-The library uses BETA version of _Aura.Sql_ for now because there is no stable 3.x version yet. 
+This packages is just an extension for the _Aura.Sql_ so check it's requirements:
+
+> This package requires PHP 5.6 or later; it has also been tested on PHP 7 and HHVM. We recommend using the latest 
+available version of PHP as a matter of principle.
