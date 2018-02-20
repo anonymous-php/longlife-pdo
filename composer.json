@@ -1,11 +1,13 @@
 {
     "name": "anonymous-php/longlife-pdo",
     "type": "library",
-    "description": "",
+    "description": "Longlife connections for looped applications",
     "keywords": [
         "mysql",
         "pdo",
-        "php"
+        "reconnection",
+        "prepared statement",
+        "statement cache"
     ],
     "license": "MIT",
     "authors": [
