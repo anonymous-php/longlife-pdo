@@ -8,7 +8,7 @@ php:
 services:
   - mysql
 before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS test; CREATE TABLE IF NOT EXISTS test (id INT NOT NULL AUTO_INCREMENT, value VARCHAR(255) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB CHARSET=utf8;'
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test; CREATE TABLE IF NOT EXISTS test.test (id INT NOT NULL AUTO_INCREMENT, value VARCHAR(255) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB CHARSET=utf8;'
 before_script:
   - composer self-update
   - composer install
