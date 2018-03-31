@@ -17,6 +17,9 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
     protected $statementsCache = [];
     protected $statementsCacheLimit;
 
+    protected $hasSavepoint;
+    protected $savepointDrivers = ['mysql', 'pgsql'];
+    protected $savepointDepth = 0;
 
     /**
      * @inheritdoc
@@ -44,6 +47,8 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
             $this->pdo = null;
             $this->statementsCache = [];
             parent::connect();
+
+            $this->hasSavepoint = in_array($this->getAttribute(\PDO::ATTR_DRIVER_NAME), $this->savepointDrivers);
         }
 
         $this->lastAccessTime = time();
@@ -52,7 +57,7 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
     /**
      * @inheritdoc
      */
-    public function prepare($statement, $options = [])
+    public function prepare($statement, $options = null)
     {
         $this->connect();
 
@@ -86,7 +91,7 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
      * @param array $options
      * @return \PDOStatement
      */
-    protected function getPreparedStatement($statement, $options = [])
+    protected function getPreparedStatement($statement, $options = null)
     {
         // No limit no cache
         if (!$this->statementsCacheLimit) {
@@ -99,7 +104,7 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
             $prepared = $this->statementsCache[$hash];
             unset($this->statementsCache[$hash]);
         } else {
-            $prepared = $this->pdo->prepare($statement);
+            $prepared = $this->pdo->prepare($statement, $options);
         }
 
         // Add last requested statement to the end of the list
@@ -111,6 +116,52 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
         }
 
         return $prepared;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beginTransaction()
+    {
+        if ($this->savepointDepth == 0 || !$this->hasSavepoint) {
+            parent::beginTransaction();
+        } else {
+            $this->exec("SAVEPOINT LEVEL{$this->savepointDepth}");
+        }
+
+        ++$this->savepointDepth;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function commit()
+    {
+        --$this->savepointDepth;
+
+        if ($this->savepointDepth == 0 || !$this->hasSavepoint) {
+            parent::commit();
+        } else {
+            $this->exec("RELEASE SAVEPOINT LEVEL{$this->savepointDepth}");
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rollBack()
+    {
+        if ($this->savepointDepth == 0) {
+            throw new \PDOException('Rollback error: There is no transaction started');
+        }
+
+        --$this->savepointDepth;
+
+        if ($this->savepointDepth == 0 || !$this->hasSavepoint) {
+            parent::rollBack();
+        } else {
+            $this->exec("ROLLBACK TO SAVEPOINT LEVEL{$this->savepointDepth}");
+        }
     }
 
 }
