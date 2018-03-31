@@ -104,7 +104,7 @@ class LonglifePdo extends \Aura\Sql\ExtendedPdo
             $prepared = $this->statementsCache[$hash];
             unset($this->statementsCache[$hash]);
         } else {
-            $prepared = $this->pdo->prepare($statement, $options);
+            $prepared = $this->pdo->prepare($statement, $options ?: []);
         }
 
         // Add last requested statement to the end of the list
